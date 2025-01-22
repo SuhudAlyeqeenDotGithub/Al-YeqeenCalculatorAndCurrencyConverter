@@ -1,10 +1,16 @@
 "use client";
-import React, { useRef } from "react";
+import React, { JSX, useRef } from "react";
 import { useState, useEffect } from "react";
 const math = require("mathjs");
 
 function AlyeqeenCalculator() {
-  const padKeys: string = "789+456-123x0=C÷";
+  const padKeys: string[] = [
+    "7", "8", "9", "+",
+    "4", "5", "6", "-",
+    "1", "2", "3", "x",
+    "0", ".", "%", "÷",
+    "√", "𝑥²", "C", "="
+];
 
   const [clickedButtonValue, setClickedButtonValue] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
@@ -27,13 +33,13 @@ function AlyeqeenCalculator() {
         } else if (inputValue.includes("÷") || inputValue.includes("x")) {
           const replacedDiv = inputValue.replaceAll("÷", "/");
           const replacedMul = replacedDiv.replaceAll("x", "*");
-          console.log("calculated value", replacedMul);
+
           const calculatedValue = math.evaluate(replacedMul);
 
           setInputValue(calculatedValue);
         } else {
           const calculatedValue = math.evaluate(inputValue);
-          console.log("calculated value", calculatedValue);
+
           setInputValue(calculatedValue);
         }
       } else if (buttonValue === "C") {
@@ -49,16 +55,20 @@ function AlyeqeenCalculator() {
     }
   };
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
 
-  const buttonStyling: string = "bg-[#03556B] text-white p-2 shadow-md rounded-md w-[60px] h-[70px] hover:bg-[#1E6C82]";
+  const buttonStyling: string = `bg-[#03556B] text-white p-2 shadow-md rounded-md w-[60px] h-[70px] hover:bg-[#1E6C82]`;
   const inputStyling: string =
     "border-[#03556B] text-[#03556B] text-[22px] font-semibold p-2 shadow-md rounded-md w-full h-[60px] outline-none border border-[#03556B] focus:border-2 focus:border-[#03556B]";
-  const keyPads: JSX.Element[] = padKeys.split("").map((char: string) => {
+
+  const keyPads: JSX.Element[] = padKeys.map((char: string) => {
     return (
-      <button className={buttonStyling} key={char} title={char} type="button" onClick={() => handleClick(char)}>
+      <button
+        className={buttonStyling + `${char === "=" ? "col-span-4" : ""}`}
+        key={char}
+        title={char === "C" ? "Clear" : char}
+        type="button"
+        onClick={() => handleClick(char)}
+      >
         {char}
       </button>
     );
@@ -66,19 +76,22 @@ function AlyeqeenCalculator() {
 
   return (
     <div className="bg-white text-[#03556B] flex justify-center p-8 ">
-      <div className="bg-[#E5EFF2] flex flex-col justify-center border-2 border-[#03556B] rounded-xl shadow-md max-w-md p-8 space-y-4">
+      <div className="bg-[#E5EFF2] flex flex-col justify-center border-2 border-[#03556B] rounded-xl shadow-md max-w-md p-8 space-y-4 hover:bg-[#ddeaee]">
         <div className="mt-2">
           <input
+            readOnly
             ref={inputRef}
             className={inputStyling}
             type="text"
             value={inputValue}
             name="inputName"
             placeholder="2 + 2 = 100"
-            onChange={handleInput}
+           
           ></input>
         </div>
-        <div className="text-red-700 ml-2 text-[15px]">{errorMessage !== "" ? errorMessage : ""}</div>
+        <div className="text-red-700 ml-2 text-[15px]">
+          {errorMessage !== "" ? errorMessage : ""}
+        </div>
 
         <div className={"grid grid-cols-4 p-2 gap-2"}>{keyPads}</div>
       </div>
